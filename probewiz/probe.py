@@ -14,6 +14,7 @@ from brainrender.actor import Actor
 @dataclass
 class ProbeGeometry:
     tip: np.ndarray = np.zeros(3)  # coordinates of the tip
+
     theta: float = 0.0  # angle relative to vertical AP axis
     psy: float = 0.0  # horizontal angle
     length: int = 4000  # length in microns
@@ -56,28 +57,19 @@ class ProbeGeometry:
         """
             The position of the top of the probe
         """
-        top = self.tip.copy()
-
-        # anterio-posterior
-        top[0] = self.tip[0] + self.length * np.sin(rad(self.theta)) * np.cos(
-            rad(180 - self.psy)
-        )
-
-        # dorso-ventral
-        top[1] = self.tip[1] - self.length * np.cos(rad(self.theta))
-
-        # medio-latera
-        top[2] = self.tip[2] + self.length * np.sin(rad(self.theta)) * np.sin(
-            rad(180 - self.psy)
-        )
-
+        top = np.array([0, -self.length, 0])
+        top = self.tip + self.R @ top
         return top
 
 
 class Probe(ProbeGeometry, Actor):
-    watched = ("tip", "theta", "psy", "length")
+    watched = (
+        "tip",
+        "theta",
+        "psy",
+    )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, _top=None, **kwargs):
         ProbeGeometry.__init__(self, *args, **kwargs)
         Actor.__init__(self, self.get_mesh(), name="Probe", br_class="Probe")
 
@@ -85,12 +77,20 @@ class Probe(ProbeGeometry, Actor):
             f"Creating probe, angles: tip:{[int(x) for x in self.tip]} psy-{self.psy:.2f}  theta-{self.theta:.2f}"
         )
 
-    def __setattr__(self, name, value):
-        self.__dict__[name] = value
+        # Initialze top position
+        if _top is None:
+            self._top = self.tip.copy()
+            self._top[1] -= self.length
+        else:
+            self._top = _top
+            self.update()
 
-        # update mesh if we changed something
-        if name in self.watched:
-            self.mesh = self.get_mesh()
+    # def __setattr__(self, name, value):
+    #     self.__dict__[name] = value
+
+    #     # update mesh if we changed something
+    #     if name in self.watched:
+    #         self.update()
 
     def __rich_console__(self, console, width):
         tb = Table(show_header=False, box=None)
@@ -104,6 +104,12 @@ class Probe(ProbeGeometry, Actor):
         tb.add_row("θ:", str(round(self.theta, 2)) + " degrees")
         tb.add_row("ψ:", str(round(self.psy, 2)) + " degrees")
 
+        tb.add_row("top:", *[str(round(x, 2)) for x in self.top])
+
+        tb.add_row("length:", str(self.length))
+
+        actual_len = np.sqrt(np.sum(self.tip - self.top) ** 2)
+        tb.add_row("actual length:", str(round(actual_len, 2)))
         yield Panel.fit(tb, title="Probe")
 
     def get_mesh(self):
@@ -122,9 +128,13 @@ class Probe(ProbeGeometry, Actor):
 
     def point_at(self, target):
         if isinstance(target, (np.ndarray, list, tuple)):
-            self.tip = np.array(target)
+            new_pos = np.array(target)
         else:
-            self.tip = target.centerOfMass()
+            new_pos = target.centerOfMass()
+
+        delta = new_pos - self.tip
+        self.tip += delta
+        self.update()
 
     def sample(self, N=100):
         """
@@ -151,4 +161,5 @@ class Probe(ProbeGeometry, Actor):
             color=self.color,
             length=self.length,
             radius=self.radius,
+            _top=self._top,
         )

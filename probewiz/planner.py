@@ -1,5 +1,6 @@
 import numpy as np
 from loguru import logger
+from vedo.shapes import Sphere
 
 # from rich import print
 
@@ -30,12 +31,39 @@ class Planner(brainrender.Scene):
         # initialize sliders
         self._init_sliders()
 
+    def add_probe(self, *probes):
+        logger.debug(f"SCENE: adding {len(probes)} probes")
+
+        for probe in probes:
+            self.probes.append(probe)
+            self.add(probe)
+
+            # Add brain regions the probe touches
+            points = probe.sample()
+            for point in points:
+                try:
+                    region = self.atlas.structure_from_coords(
+                        point, microns=True, as_acronym=True
+                    )
+                except KeyError:
+                    continue
+
+                self.add_brain_region(region, alpha=0.2)
+
+    def refresh(self):
+        new_probe = self.probe.clone()
+        new_probe.applyTransform(mtx)
+        self.plotter.add(new_probe.mesh)
+        self.plotter.remove(self.probe.mesh)
+        self.probe = new_probe
+
     def _init_sliders(self):
         self._get_plotter()
 
         bounds = self.root.bounds()
         com = self.root.centerOfMass()
 
+        # 3D sliders for XYZ positioning
         p0 = (bounds[0], 0, 0)
         p1 = [bounds[1], 0, 0]
         p2 = (bounds[0], 0, -bounds[5])
@@ -74,13 +102,16 @@ class Planner(brainrender.Scene):
             rotation=180,
             showValue=False,
         )
+        self.add(Sphere(pos=p0, r=300, c="k"))
 
-    def refresh(self):
-        new_probe = self.probe.clone()
-        new_probe.applyTransform(mtx)
-        self.plotter.add(new_probe.mesh)
-        self.plotter.remove(self.probe.mesh)
-        self.probe = new_probe
+        # 2D sliders for tilting
+        self.plotter.addSlider2D(
+            self.tilt_AP, -90, 90, value=0, title="AP angle",
+        )
+
+        self.plotter.addSlider2D(
+            self.tilt_ML, -90, 90, value=0, title="ML angle", pos=3,
+        )
 
     def move_AP(self, widget, event):
         value = widget.GetRepresentation().GetValue()
@@ -106,21 +137,18 @@ class Planner(brainrender.Scene):
             self.probe.tip[1] = value
             self.refresh()
 
-    def add_probe(self, *probes):
-        logger.debug(f"SCENE: adding {len(probes)} probes")
+    def tilt_AP(self, widget, event):
+        value = widget.GetRepresentation().GetValue()
+        delta = np.abs(value - self.probe.psy)
+        if delta > 1:
+            logger.debug(f"Tilt AP: {value:.1f}")
+            self.probe.psy = value
+            self.refresh()
 
-        for probe in probes:
-            self.probes.append(probe)
-            self.add(probe)
-
-            # Add brain regions the probe touches
-            points = probe.sample()
-            for point in points:
-                try:
-                    region = self.atlas.structure_from_coords(
-                        point, microns=True, as_acronym=True
-                    )
-                except KeyError:
-                    continue
-
-                self.add_brain_region(region, alpha=0.2)
+    def tilt_ML(self, widget, event):
+        value = widget.GetRepresentation().GetValue()
+        delta = np.abs(value - self.probe.theta)
+        if delta > 1:
+            logger.debug(f"Tilt ML: {value:.1f}")
+            self.probe.theta = value
+            self.refresh()
