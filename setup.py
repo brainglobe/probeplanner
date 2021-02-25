@@ -5,14 +5,12 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-requirements = [
-
-]
+requirements = []
 
 setup(
-    name="XXX",
-    version="XXX",
-    description="XXX",
+    name="probeplanner",
+    version="0.1",
+    description="Plan probe locations",
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
@@ -28,14 +26,10 @@ setup(
         "Intended Audience :: Science/Research",
     ],
     install_requires=requirements,
-    extras_require={
-    },
+    extras_require={},
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=("tests, examples")),
-    entry_points={
-        "console_scripts": [
-        ]
-    },
+    entry_points={"console_scripts": []},
     include_package_data=True,
     url="XXX",
     author="Federico Claudi",

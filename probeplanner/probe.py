@@ -8,6 +8,8 @@ from loguru import logger
 from rich.panel import Panel
 from rich.table import Table
 
+from myterial import salmon_light, pink, blue_light
+
 from brainrender.actor import Actor
 
 
@@ -17,7 +19,7 @@ class ProbeGeometry:
 
     theta: float = 0.0  # angle relative to vertical AP axis
     psy: float = 0.0  # horizontal angle
-    length: int = 4000  # length in microns
+    length: int = 6000  # length in microns
     radius: int = 70
     color: str = "k"
 
@@ -85,32 +87,36 @@ class Probe(ProbeGeometry, Actor):
             self._top = _top
             self.update()
 
-    # def __setattr__(self, name, value):
-    #     self.__dict__[name] = value
-
-    #     # update mesh if we changed something
-    #     if name in self.watched:
-    #         self.update()
-
     def __rich_console__(self, console, width):
         tb = Table(show_header=False, box=None)
-        tb.add_column(justify="right", style="bold yellow")
+        tb.add_column(justify="right", style=f"bold {pink}")
         tb.add_column(justify="left")
 
-        tb.add_row("AP:", str(round(self.tip[0], 0)) + " micrometers")
-        tb.add_row("ML:", str(round(self.tip[2], 0)) + " micrometers")
-        tb.add_row("DV:", str(round(self.tip[1], 0)) + " micrometers")
+        tb.add_row(
+            "AP:",
+            f"[{blue_light}]" + str(round(self.tip[0], 0)) + " micrometers",
+        )
+        tb.add_row(
+            "ML:",
+            f"[{blue_light}]" + str(round(self.tip[2], 0)) + " micrometers",
+        )
+        tb.add_row(
+            "DV:",
+            f"[{blue_light}]" + str(round(self.tip[1], 0)) + " micrometers",
+        )
 
-        tb.add_row("θ:", str(round(self.theta, 2)) + " degrees")
-        tb.add_row("ψ:", str(round(self.psy, 2)) + " degrees")
+        tb.add_row(
+            "AP angle:",
+            f"[{blue_light}]" + str(round(self.theta, 2)) + " degrees",
+        )
+        tb.add_row(
+            "DV angle:",
+            f"[{blue_light}]" + str(round(self.psy, 2)) + " degrees",
+        )
 
-        tb.add_row("top:", *[str(round(x, 2)) for x in self.top])
-
-        tb.add_row("length:", str(self.length))
-
-        actual_len = np.sqrt(np.sum(self.tip - self.top) ** 2)
-        tb.add_row("actual length:", str(round(actual_len, 2)))
-        yield Panel.fit(tb, title="Probe")
+        yield Panel(
+            tb, title="Probe", border_style=salmon_light, title_align="left"
+        )
 
     def get_mesh(self):
         """
