@@ -5,7 +5,13 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-requirements = []
+requirements = [
+    "brainrender>=2.0.2.0",
+    "rich>=9.12.0",
+    "myterial",
+    "loguru",
+    "typer",
+]
 
 setup(
     name="probeplanner",
@@ -29,9 +35,9 @@ setup(
     extras_require={},
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=("tests, examples")),
-    entry_points={"console_scripts": []},
+    entry_points={"console_scripts": ["pplanner = probeplanner.cli:app"]},
     include_package_data=True,
-    url="XXX",
+    url="https://github.com/brainglobe/probeplanner",
     author="Federico Claudi",
     zip_safe=False,
 )
