@@ -1,7 +1,17 @@
 from rich.panel import Panel
 from rich.layout import Layout
 
-from myterial import green, green_light, light_blue
+from myterial import green, green_light, light_blue, salmon_light
+
+
+class ProbeLive:
+    probe = None
+
+    def __rich_console__(self, console, measure):
+        if self.probe is None:
+            yield ""
+        else:
+            yield from list(self.probe.__rich_console__(console, measure))
 
 
 class Tree:
@@ -33,7 +43,17 @@ class Live:
         )
 
         self.layout["left"].split(
-            Layout(target, name="ltop"), Layout(probe, name="lbottom", ratio=3)
+            Layout(target, name="ltop"),
+            Layout(
+                Panel(
+                    probe,
+                    title="Probe",
+                    border_style=salmon_light,
+                    title_align="left",
+                ),
+                name="lbottom",
+                ratio=3,
+            ),
         )
 
     def __rich_console__(self, console, measure):

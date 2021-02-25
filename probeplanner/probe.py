@@ -5,21 +5,27 @@ from vedo.shapes import Cylinder, Sphere
 from vedo import merge
 from dataclasses import dataclass
 from loguru import logger
-from rich.panel import Panel
 from rich.table import Table
 
-from myterial import salmon_light, pink, blue_light
+from myterial import blue_light, pink_light, salmon
 
 from brainrender.actor import Actor
+
+
+BREGMA = [
+    5400,  # AP
+    0,  # DV
+    5700,  # ML
+]
 
 
 @dataclass
 class ProbeGeometry:
     tip: np.ndarray = np.zeros(3)  # coordinates of the tip
 
-    theta: float = 0.0  # angle relative to vertical AP axis
-    psy: float = 0.0  # horizontal angle
-    length: int = 6000  # length in microns
+    theta: float = 0.0  # ML angle
+    psy: float = 0.0  # AP angle
+    length: int = 10000  # length in microns
     radius: int = 70
     color: str = "k"
 
@@ -88,35 +94,41 @@ class Probe(ProbeGeometry, Actor):
             self.update()
 
     def __rich_console__(self, console, width):
-        tb = Table(show_header=False, box=None)
-        tb.add_column(justify="right", style=f"bold {pink}")
-        tb.add_column(justify="left")
-
+        tb = Table(box=None)
+        tb.add_row(f"[bold {salmon}]Position in CFF coordinates")
         tb.add_row(
-            "AP:",
-            f"[{blue_light}]" + str(round(self.tip[0], 0)) + " micrometers",
+            f"[bold {pink_light}]AP:  [{blue_light}] {str(round(self.tip[0], 0))} [grey]micrometers",
         )
         tb.add_row(
-            "ML:",
-            f"[{blue_light}]" + str(round(self.tip[2], 0)) + " micrometers",
+            f"[bold {pink_light}]ML:  [{blue_light}] {str(round(self.tip[2], 0))} [grey]micrometers",
         )
         tb.add_row(
-            "DV:",
-            f"[{blue_light}]" + str(round(self.tip[1], 0)) + " micrometers",
+            f"[bold {pink_light}]DV:  [{blue_light}] {str(round(self.tip[1], 0))} [grey]micrometers",
         )
 
+        tb.add_row("")
+        tb.add_row(f"[bold {salmon}]Angles")
         tb.add_row(
-            "AP angle:",
-            f"[{blue_light}]" + str(round(self.theta, 2)) + " degrees",
+            f"[bold {pink_light}]ML angle:  [{blue_light}] {str(round(self.theta, 0))} [grey]degrees",
         )
         tb.add_row(
-            "DV angle:",
-            f"[{blue_light}]" + str(round(self.psy, 2)) + " degrees",
+            f"[bold {pink_light}]AP angle:  [{blue_light}] {str(round(self.psy, 0))} [grey]degrees",
         )
+        # print(str(self.theta))
+        # print(str(self.psy))
 
-        yield Panel(
-            tb, title="Probe", border_style=salmon_light, title_align="left"
+        tb.add_row("")
+        tb.add_row(f"[bold {salmon}]Position relative to bregma")
+        tb.add_row(
+            f"[bold {pink_light}]AP:  [{blue_light}] {str(-round((BREGMA[0] - self.tip[0])/1000, 3))} [grey]mm",
         )
+        tb.add_row(
+            f"[bold {pink_light}]ML:  [{blue_light}] {str(-round((BREGMA[2] - self.tip[2])/1000, 3))} [grey]mm",
+        )
+        tb.add_row(
+            f"[bold {pink_light}]DV:  [{blue_light}] {str(-round((BREGMA[1] - self.tip[1])/1000, 3))} [grey]mm",
+        )
+        yield tb
 
     def get_mesh(self):
         """
@@ -142,11 +154,11 @@ class Probe(ProbeGeometry, Actor):
         self.tip += delta
         self.update()
 
-    def sample(self, N=100):
+    def sample(self, N=50):
         """
             Sample N points along the length of the probe
         """
-        steps = np.linspace(0, 1, N)
+        steps = np.linspace(0.001, 0.999, N)
         points = [
             np.array(
                 [
@@ -162,8 +174,8 @@ class Probe(ProbeGeometry, Actor):
     def clone(self):
         return Probe(
             tip=self.tip,
-            theta=self.theta,
-            psy=self.psy,
+            theta=float(self.theta),
+            psy=float(self.psy),
             color=self.color,
             length=self.length,
             radius=self.radius,
