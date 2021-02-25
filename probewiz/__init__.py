@@ -1,2 +1,1 @@
-from probewiz.scene import Scene
-from probewiz.probe import Probe
+from probewiz.planner import Planner
