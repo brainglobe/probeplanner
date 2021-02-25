@@ -17,6 +17,7 @@ brainrender.settings.DEFAULT_CAMERA = {
     "distance": 35640,
 }
 brainrender.settings.SHOW_AXES = False
+brainrender.settings.WHOLE_SCREEN = False
 
 
 def in_tree(label, tree):
