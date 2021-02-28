@@ -6,6 +6,7 @@ from vedo import merge
 from dataclasses import dataclass
 from loguru import logger
 from rich.table import Table
+import yaml
 
 from myterial import blue_light, pink_light, salmon
 
@@ -114,8 +115,6 @@ class Probe(ProbeGeometry, Actor):
         tb.add_row(
             f"[bold {pink_light}]AP angle:  [{blue_light}] {str(round(self.psy, 0))} [grey]degrees",
         )
-        # print(str(self.theta))
-        # print(str(self.psy))
 
         tb.add_row("")
         tb.add_row(f"[bold {salmon}]Position relative to bregma")
@@ -173,11 +172,43 @@ class Probe(ProbeGeometry, Actor):
 
     def clone(self):
         return Probe(
-            tip=self.tip,
+            tip=self.tip.copy(),
             theta=float(self.theta),
             psy=float(self.psy),
             color=self.color,
             length=self.length,
             radius=self.radius,
             _top=self._top,
+        )
+
+    def save(self, savepath):
+        """
+            Save probe params to file
+        """
+        params = dict(
+            tip=[float(x) for x in self.tip],
+            psy=self.psy,
+            theta=self.theta,
+            length=self.length,
+            radius=self.radius,
+        )
+
+        with open(savepath, "w") as out:
+            yaml.dump(params, out, default_flow_style=False, indent=4)
+
+    @classmethod
+    def load(cls, savepath):
+        """
+            Loads a probe's parameter from YAML file
+            and creates a Probe object
+        """
+        with open(savepath, "r") as fin:
+            params = yaml.load(fin, Loader=yaml.FullLoader)
+
+        return cls(
+            tip=np.array(params["tip"]),
+            theta=float(params["theta"]),
+            psy=float(params["psy"]),
+            length=params["length"],
+            radius=params["radius"],
         )

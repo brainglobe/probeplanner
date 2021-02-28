@@ -11,11 +11,12 @@ requirements = [
     "myterial",
     "loguru",
     "typer",
+    "pyyaml",
 ]
 
 setup(
     name="probeplanner",
-    version="0.1",
+    version="0.1.2",
     description="Plan probe locations",
     long_description=long_description,
     long_description_content_type="text/markdown",
