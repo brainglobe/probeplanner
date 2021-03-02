@@ -12,7 +12,10 @@ from myterial import blue_light, pink_light, salmon
 
 from brainrender.actor import Actor
 
-
+"""
+    This bregma coordinates in the Allen CCF are from Shamash et al 2018
+    and are only approximated. Good enough for visualization.
+"""
 BREGMA = [
     5400,  # AP
     0,  # DV
@@ -22,6 +25,11 @@ BREGMA = [
 
 @dataclass
 class ProbeGeometry:
+    """
+        Class handling basic geometry operation on 
+        the probe.
+    """
+
     tip: np.ndarray = np.zeros(3)  # coordinates of the tip
 
     tilt_ML: float = 0.0  # ML angle
@@ -62,13 +70,14 @@ class ProbeGeometry:
 
     @property
     def R(self):
-        """ rotation matrix """
+        """ rotation matrix composed of rotations with AP and ML axes """
         return self.R_AP @ self.R_ML
 
     @property
     def top(self):
         """
-            The position of the top of the probe
+            The position of the top of the probe, computed given the probe's 
+            tip location, length and rotation matrix.
         """
         top = np.array([0, -self.length, 0])
         top = self.tip + self.R @ top
@@ -76,13 +85,10 @@ class ProbeGeometry:
 
 
 class Probe(ProbeGeometry, Actor):
-    watched = (
-        "tip",
-        "tilt_ML",
-        "tilt_AP",
-    )
-
     def __init__(self, *args, _top=None, **kwargs):
+        """
+            Represents a probe as a brainrender actor
+        """
         ProbeGeometry.__init__(self, *args, **kwargs)
         Actor.__init__(self, self.get_mesh(), name="Probe", br_class="Probe")
 
@@ -99,6 +105,9 @@ class Probe(ProbeGeometry, Actor):
             self.update()
 
     def __rich_console__(self, console, width):
+        """
+            print probe parameters to terminal
+        """
         tb = Table(box=None)
         tb.add_row(f"[bold {salmon}]Position in CFF coordinates")
         tb.add_row(
@@ -145,9 +154,17 @@ class Probe(ProbeGeometry, Actor):
         return mesh
 
     def update(self):
+        """
+            Update probe's mesh
+        """
         self.mesh = self.get_mesh()
 
     def point_at(self, target):
+        """
+            Point the probe at a target (either set of coordinates or an actor).
+            The "pointing" referes to the positioning of the probe's tip at the point of interest, 
+            it doesn't affect the probe's angles.
+        """
         if isinstance(target, (np.ndarray, list, tuple)):
             new_pos = np.array(target)
         else:
@@ -175,6 +192,9 @@ class Probe(ProbeGeometry, Actor):
         return points
 
     def clone(self):
+        """
+            Returns a new probe with the same parameters as the current one
+        """
         return Probe(
             tip=self.tip.copy(),
             tilt_ML=float(self.tilt_ML),

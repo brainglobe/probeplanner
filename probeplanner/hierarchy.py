@@ -3,10 +3,16 @@ from rich.panel import Panel
 
 
 def in_tree(label, tree):
+    """
+        Check if a label is in the structure's treee
+    """
     return label in [n.label for n in tree.children]
 
 
 def get_with_label(label, tree):
+    """
+        Get a tree's node given it's label
+    """
     return [n for n in tree.children if n.label == label][0]
 
 
@@ -17,9 +23,20 @@ def rgb2hex(rgb):
 
 
 class Hierarchy:
-    bad = ("root", "fiber tracts", "VS")
+    """
+        Functions to handle structures' hierarchy
+    """
+
+    bad = ("root", "fiber tracts", "VS")  # to be ugnored
 
     def get_structure_from_point(self, point):
+        """
+            Give a point's coordinates, get which brain region it is in
+            and exclude bad ones. 
+
+            Arguments:
+                point: np.ndarray with AP-DV-ML coordinates.
+        """
         if not self.root_mesh.isInside(point):
             return None
 
@@ -40,7 +57,7 @@ class Hierarchy:
     def construct_tree(self):
         """
             Creates a decorated rich Tree with
-            the hierarchy of structures touched by the probe
+            the hierarchy of structures touched by the probe.
         """
         root = tree.Tree("Targeted structures")
         targets = [

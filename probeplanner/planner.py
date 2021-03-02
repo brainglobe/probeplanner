@@ -16,6 +16,19 @@ class Planner(Core):
         probe_file=None,
         interactive=True,
     ):
+        """
+            Interactive visualization that can be used to edit probe's parameters and save 
+            probes to file.
+
+            Arguments:
+                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
+                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
+                    should be targeted?
+                AP_angle, ML_angle: float. Angles in the AP and ML planes
+                highlight: list of str of brain region acronyms of regions to highlight in the rendering
+                probe_file: str, Path. Path to a .yaml file with probe parameters.
+                interactive: bool. If False the sliders and buttons are not shown.
+        """
         Core.__init__(
             self,
             aim_at=aim_at,
@@ -35,7 +48,7 @@ class Planner(Core):
 
     def plan(self):
         """
-            Starts interactive displays for planning probes placements
+            Starts interactive displays for planning probes placement.
         """
         display = TerminalUI(
             self.probe_display, self.target_display, self.tree_display
@@ -44,16 +57,22 @@ class Planner(Core):
             self.render()
 
     def save_probe(self):
+        """
+            Save current probe parameters to file.
+        """
         logger.debug("Saving probe")
         self.probe.save("probe.yaml")
 
     def reset(self):
+        """
+            Reset probe to initial values
+        """
         self.plotter.remove(self.probe.mesh)
         self.refresh(new_probe=self._probe.clone(), reset_sliders=True)
 
     def get_regions(self):
         """
-            Produces a list of region that names
+            Produces a list of regions
             that the probe goes through
         """
         points = self.probe.sample()
@@ -74,8 +93,10 @@ class Planner(Core):
 
     def update_regions(self, new_targets):
         """
-            Removes from scene regions that are not relevant anymore, 
-            and adds new ones
+            Removes from scene regions that are not relevant anymore (i.e. probe doesn't
+            go through them anymore), 
+            and adds new ones that are touched by the probe but not currently rendred.
+            Hihlighted regions are rendered with outline and higher alpha.
         """
         logger.debug("Updating region actors")
         rendered = []

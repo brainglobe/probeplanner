@@ -18,8 +18,8 @@ brainrender.settings.WHOLE_SCREEN = False
 
 
 class Core(brainrender.Scene, UI, Hierarchy):
-    probe_targets = []
-    tip_region = ""
+    probe_targets = []  # store brain regions touched by probes
+    tip_region = ""  # brain region in which selected probe's tip is
 
     def __init__(
         self,
@@ -30,11 +30,25 @@ class Core(brainrender.Scene, UI, Hierarchy):
         highlight=[],
         probe_file=None,
     ):
+        """ 
+            Base class providing core functionality for Planner and Viewer.
+            Expands upon brainrender's Scene class to provide methods to add probes to the 
+            rendering and add/remove brain regions touched by probes
+
+            Arguments:
+                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
+                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
+                    should be targeted?
+                AP_angle, ML_angle: float. Angles in the AP and ML planes
+                highlight: list of str of brain region acronyms of regions to highlight in the rendering
+                probe_file: str, Path. Path to a .yaml file with probe parameters.
+        """
+        # intialize parent classes
         brainrender.Scene.__init__(self)
         UI.__init__(self)
         Hierarchy.__init__(self)
 
-        # initialize brain regions
+        # get copy of root's mesh
         self.root_mesh = self.atlas.get_region("root")
 
         # expand highlighted regions with their descendants
@@ -44,7 +58,7 @@ class Core(brainrender.Scene, UI, Hierarchy):
                 self.atlas.get_structure_descendants(region) + [region]
             )
 
-        # add probe
+        # add first probe
         self.add_probe(
             aim_at=aim_at,
             hemisphere=hemisphere,
@@ -72,7 +86,15 @@ class Core(brainrender.Scene, UI, Hierarchy):
         probe_file=None,
     ):
         """
-            Creates a Probe and aims it at a target structure and tilts it/
+            Creates a Probe by either loading it from file or by positioning and 
+            tilting it according to the input parameters.
+            
+            Arguments:
+                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
+                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
+                    should be targeted?
+                AP_angle, ML_angle: float. Angles in the AP and ML planes
+                probe_file: str, Path. Path to a .yaml file with probe parameters.
         """
         if probe_file is not None:
             self.probe = Probe.load(probe_file)
@@ -106,13 +128,29 @@ class Core(brainrender.Scene, UI, Hierarchy):
         self._probe = self.probe.clone()
 
     def refresh(self, new_probe=None, reset_sliders=False):
+        """
+            Refresh visualization to update the scene and the terminal UI.
+            To ensure that the probe's actor is updated in the 3D visualization, 
+            the current probe is removed an a new (cloned) probe is added.
+
+            Arguments:
+                new_probe: Probe. instance of Probe class, if None the current probe's clone
+                    is used.
+                reset_sliders: bool. If true the sliders' values are updated using the new
+                    probe's parameters.
+        """
         # make new probe
         new_probe = new_probe or self.probe.clone()
+
+        # replace old probe in scene
         self.add(new_probe)
         self.remove(self.probe)
+
+        # store new probe
         self.probe = new_probe
         self.probe_display.probe = new_probe
 
+        # reset sliders
         if reset_sliders:
             self.set_sliders_values()
 

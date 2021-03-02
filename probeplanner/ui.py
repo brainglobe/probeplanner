@@ -11,12 +11,18 @@ from myterial import green, green_light, light_blue, salmon_light
 
 class UI:
     def __init__(self):
+        """
+            User interface (siders and buttons) for Planner
+        """
         # initialize classes for live display
         self.target_display = Target()
         self.tree_display = Tree()
         self.probe_display = ProbeLive()
 
     def _init_buttons(self):
+        """
+            Add buttons to 3D visualization
+        """
         # reset probe
         self.plotter.addButton(
             self.reset,
@@ -44,6 +50,9 @@ class UI:
         )
 
     def _init_sliders(self):
+        """
+            Add sliders to 3D visualization
+        """
         bounds = self.root_mesh.bounds()
 
         # 3D sliders for XYZ positioning
@@ -110,6 +119,10 @@ class UI:
         )
 
     def set_sliders_values(self):
+        """
+            Update the sliders' values based on the current
+            probe parameters.
+        """
         self.sliders["move_AP"].GetRepresentation().SetValue(self.probe.tip[0])
         self.sliders["move_DV"].GetRepresentation().SetValue(self.probe.tip[1])
         self.sliders["move_ML"].GetRepresentation().SetValue(self.probe.tip[2])
@@ -162,6 +175,10 @@ class UI:
 
 
 class ProbeLive:
+    """
+        Show current probe parameters
+    """
+
     probe = None
 
     def __rich_console__(self, console, measure):
@@ -172,6 +189,10 @@ class ProbeLive:
 
 
 class Tree:
+    """
+        Tree hierarchy of regions traversed by probe
+    """
+
     targets = []
 
     def __rich_console__(self, console, measure):
@@ -179,6 +200,10 @@ class Tree:
 
 
 class Target:
+    """
+        Shows the current probe target
+    """
+
     target = ""
 
     def __rich_console__(self, console, measure):
@@ -192,6 +217,11 @@ class Target:
 
 class TerminalUI:
     def __init__(self, probe, target, tree):
+        """
+            UI for terminal info panels showing probe parameters, regions
+            touched by probe etc. Built as a Live dispay of Layout's showing 
+            rich renderables (classes above).
+        """
         self.layout = Layout()
         self.layout.split(
             Layout(name="left", ratio=2),
