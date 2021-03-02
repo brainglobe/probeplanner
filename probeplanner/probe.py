@@ -5,10 +5,7 @@ from vedo.shapes import Cylinder, Sphere
 from vedo import merge
 from dataclasses import dataclass
 from loguru import logger
-from rich.table import Table
 import yaml
-
-from myterial import blue_light, pink_light, salmon
 
 from brainrender.actor import Actor
 
@@ -103,44 +100,6 @@ class Probe(ProbeGeometry, Actor):
         else:
             self._top = _top
             self.update()
-
-    def __rich_console__(self, console, width):
-        """
-            print probe parameters to terminal
-        """
-        tb = Table(box=None)
-        tb.add_row(f"[bold {salmon}]Position in CFF coordinates")
-        tb.add_row(
-            f"[bold {pink_light}]AP:  [{blue_light}] {str(round(self.tip[0], 0))} [grey]micrometers",
-        )
-        tb.add_row(
-            f"[bold {pink_light}]ML:  [{blue_light}] {str(round(self.tip[2], 0))} [grey]micrometers",
-        )
-        tb.add_row(
-            f"[bold {pink_light}]DV:  [{blue_light}] {str(round(self.tip[1], 0))} [grey]micrometers",
-        )
-
-        tb.add_row("")
-        tb.add_row(f"[bold {salmon}]Angles")
-        tb.add_row(
-            f"[bold {pink_light}]ML angle:  [{blue_light}] {str(round(self.tilt_ML, 0))} [grey]degrees",
-        )
-        tb.add_row(
-            f"[bold {pink_light}]AP angle:  [{blue_light}] {str(round(self.tilt_AP, 0))} [grey]degrees",
-        )
-
-        tb.add_row("")
-        tb.add_row(f"[bold {salmon}]Position relative to bregma")
-        tb.add_row(
-            f"[bold {pink_light}]AP:  [{blue_light}] {str(-round((BREGMA[0] - self.tip[0])/1000, 3))} [grey]mm",
-        )
-        tb.add_row(
-            f"[bold {pink_light}]ML:  [{blue_light}] {str(-round((BREGMA[2] - self.tip[2])/1000, 3))} [grey]mm",
-        )
-        tb.add_row(
-            f"[bold {pink_light}]DV:  [{blue_light}] {str(-round((BREGMA[1] - self.tip[1])/1000, 3))} [grey]mm",
-        )
-        yield tb
 
     def get_mesh(self):
         """

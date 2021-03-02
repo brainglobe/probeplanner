@@ -1,5 +1,4 @@
 from rich import tree
-from rich.panel import Panel
 
 
 def in_tree(label, tree):
@@ -74,11 +73,11 @@ class Hierarchy:
             color = rgb2hex(
                 self.atlas._get_from_structure(parents[0], "rgb_triplet")
             )
+
             name = f"[b {color}]{parents[0]}"
             if in_tree(name, root):
                 node = get_with_label(name, root)
             else:
-
                 node = root.add(name, guide_style=color)
 
             # add all sub structures
@@ -86,14 +85,16 @@ class Hierarchy:
                 color = rgb2hex(
                     self.atlas._get_from_structure(structure, "rgb_triplet")
                 )
-                name = f"[b {color}]{structure}"
+
+                if structure == self.tip_region:
+                    style = f"[b #2a2a2a on {color}] "
+                else:
+                    style = f"[b {color}]"
+
+                name = f"{style}{structure} "
                 if in_tree(name, node):
                     node = get_with_label(name, node)
                 else:
-                    if structure == self.tip_region:
-                        obj = Panel.fit(structure, style=f"white on {color}")
-                    else:
-                        obj = name
-                    node = node.add(obj, guide_style=color)
+                    node = node.add(name, guide_style=color)
 
-        self.tree_display.targets = root
+        self.structures_target_display.targets = root

@@ -3,21 +3,11 @@ from vedo.shapes import Sphere
 import numpy as np
 from myterial import blue_grey_dark
 
-from rich.panel import Panel
-from rich.layout import Layout
-
-from myterial import green, green_light, light_blue, salmon_light
-
 
 class UI:
-    def __init__(self):
-        """
-            User interface (siders and buttons) for Planner
-        """
-        # initialize classes for live display
-        self.target_display = Target()
-        self.tree_display = Tree()
-        self.probe_display = ProbeLive()
+    """
+        User interface (siders and buttons) for Planner
+    """
 
     def _init_buttons(self):
         """
@@ -172,76 +162,3 @@ class UI:
             logger.debug(f"Tilt ML: {value:.1f}")
             self.probe.tilt_ML = value
             self.refresh()
-
-
-class ProbeLive:
-    """
-        Show current probe parameters
-    """
-
-    probe = None
-
-    def __rich_console__(self, console, measure):
-        if self.probe is None:
-            yield ""
-        else:
-            yield from list(self.probe.__rich_console__(console, measure))
-
-
-class Tree:
-    """
-        Tree hierarchy of regions traversed by probe
-    """
-
-    targets = []
-
-    def __rich_console__(self, console, measure):
-        yield Panel(self.targets, style=light_blue, padding=(2, 2))
-
-
-class Target:
-    """
-        Shows the current probe target
-    """
-
-    target = ""
-
-    def __rich_console__(self, console, measure):
-        yield Panel(
-            f'[bold {green}]Probe tip is in: "{self.target}"',
-            title="Current target",
-            title_align="left",
-            border_style=green_light,
-        )
-
-
-class TerminalUI:
-    def __init__(self, probe, target, tree):
-        """
-            UI for terminal info panels showing probe parameters, regions
-            touched by probe etc. Built as a Live dispay of Layout's showing 
-            rich renderables (classes above).
-        """
-        self.layout = Layout()
-        self.layout.split(
-            Layout(name="left", ratio=2),
-            Layout(tree, name="right", ratio=4),
-            direction="horizontal",
-        )
-
-        self.layout["left"].split(
-            Layout(target, name="ltop"),
-            Layout(
-                Panel(
-                    probe,
-                    title="Probe",
-                    border_style=salmon_light,
-                    title_align="left",
-                ),
-                name="lbottom",
-                ratio=3,
-            ),
-        )
-
-    def __rich_console__(self, console, measure):
-        yield self.layout

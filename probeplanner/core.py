@@ -4,6 +4,11 @@ import brainrender
 
 from probeplanner.probe import BREGMA, Probe
 from probeplanner.ui import UI
+from probeplanner.terminal_ui import (
+    StructuresTree,
+    ProbeTarget,
+    ProbeParameters,
+)
 from probeplanner.hierarchy import Hierarchy
 
 brainrender.settings.DEFAULT_CAMERA = {
@@ -73,6 +78,11 @@ class Core(brainrender.Scene, UI, Hierarchy):
                 pos=BREGMA, r=150, height=50, c="k", alpha=0.4, axis=(0, 1, 0)
             )
         )
+
+        # initialize classes for live display
+        self.probe_target_display = ProbeTarget()
+        self.structures_target_display = StructuresTree()
+        self.probe_parameters_display = ProbeParameters()
 
         # update rendering
         self.refresh()
@@ -148,7 +158,7 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
         # store new probe
         self.probe = new_probe
-        self.probe_display.probe = new_probe
+        self.probe_parameters_display.probe = new_probe
 
         # reset sliders
         if reset_sliders:
@@ -164,4 +174,4 @@ class Core(brainrender.Scene, UI, Hierarchy):
         self.construct_tree()
 
         # update probe tip target
-        self.target_display.target = self.tip_region
+        self.probe_target_display.target = self.tip_region

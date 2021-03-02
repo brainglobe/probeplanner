@@ -2,7 +2,7 @@ from loguru import logger
 from rich.live import Live
 
 from probeplanner.core import Core
-from probeplanner.ui import TerminalUI
+from probeplanner.terminal_ui import TerminalUI
 
 
 class Planner(Core):
@@ -51,7 +51,9 @@ class Planner(Core):
             Starts interactive displays for planning probes placement.
         """
         display = TerminalUI(
-            self.probe_display, self.target_display, self.tree_display
+            self.probe_parameters_display,
+            self.probe_target_display,
+            self.structures_target_display,
         )
         with Live(display):
             self.render()
@@ -81,6 +83,8 @@ class Planner(Core):
         names = []
         for p in points:
             name = self.get_structure_from_point(p)
+            if name == "root":
+                continue
             if name is None:
                 continue
             else:
@@ -103,7 +107,8 @@ class Planner(Core):
 
         # remove outdated
         for region in self.probe_targets:
-            if region not in new_targets:
+
+            if region not in new_targets and region != "root":
                 self.remove(
                     *self.get_actors(name=region, br_class="brain region")
                 )
