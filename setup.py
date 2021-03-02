@@ -36,7 +36,7 @@ setup(
     extras_require={},
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=("tests, examples")),
-    entry_points={"console_scripts": ["pplanner = probeplanner.cli:app"]},
+    entry_points={"console_scripts": ["probe = probeplanner.cli:app"]},
     include_package_data=True,
     url="https://github.com/brainglobe/probeplanner",
     author="Federico Claudi",

@@ -6,9 +6,6 @@ from probeplanner.ui import TerminalUI
 
 
 class Planner(Core):
-    probe_targets = []
-    tip_region = ""
-
     def __init__(
         self,
         aim_at=None,
@@ -17,6 +14,7 @@ class Planner(Core):
         ML_angle=0,
         highlight=[],
         probe_file=None,
+        interactive=True,
     ):
         Core.__init__(
             self,
@@ -28,9 +26,10 @@ class Planner(Core):
             probe_file=probe_file,
         )
 
-        # initialize sliders
-        self._init_sliders()
-        self._init_buttons()
+        if interactive:
+            # initialize sliders
+            self._init_sliders()
+            self._init_buttons()
 
         self.refresh()
 

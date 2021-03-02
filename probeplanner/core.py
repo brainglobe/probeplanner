@@ -18,6 +18,9 @@ brainrender.settings.WHOLE_SCREEN = False
 
 
 class Core(brainrender.Scene, UI, Hierarchy):
+    probe_targets = []
+    tip_region = ""
+
     def __init__(
         self,
         aim_at=None,
@@ -121,3 +124,6 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
         # refresh probe targets tree
         self.construct_tree()
+
+        # update probe tip target
+        self.target_display.target = self.tip_region

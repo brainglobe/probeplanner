@@ -33,7 +33,7 @@ class UI:
         # save probe button
         self.plotter.addButton(
             self.save_probe,
-            pos=(0.1, 0.85),  # x,y fraction from bottom left corner
+            pos=(0.15, 0.85),  # x,y fraction from bottom left corner
             states=["Save probe"],
             c=["w"],
             bc=[blue_grey_dark],  # colors of states
@@ -190,8 +190,8 @@ class TerminalUI:
     def __init__(self, probe, target, tree):
         self.layout = Layout()
         self.layout.split(
-            Layout(name="left"),
-            Layout(tree, name="right", ratio=2),
+            Layout(name="left", ratio=2),
+            Layout(tree, name="right", ratio=4),
             direction="horizontal",
         )
 
