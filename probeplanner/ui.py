@@ -89,14 +89,14 @@ class UI:
 
         # 2D sliders for tilting
         tilt_AP_slider = self.plotter.addSlider2D(
-            self.tilt_AP, -60, 60, value=self.probe.psy, title="AP angle",
+            self.tilt_AP, -60, 60, value=self.probe.tilt_AP, title="AP angle",
         )
 
         tilt_ML_slider = self.plotter.addSlider2D(
             self.tilt_ML,
             -60,
             60,
-            value=self.probe.theta,
+            value=self.probe.tilt_ML,
             title="ML angle",
             pos=3,
         )
@@ -113,8 +113,12 @@ class UI:
         self.sliders["move_AP"].GetRepresentation().SetValue(self.probe.tip[0])
         self.sliders["move_DV"].GetRepresentation().SetValue(self.probe.tip[1])
         self.sliders["move_ML"].GetRepresentation().SetValue(self.probe.tip[2])
-        self.sliders["tilt_AP"].GetRepresentation().SetValue(self.probe.psy)
-        self.sliders["tilt_ML"].GetRepresentation().SetValue(self.probe.theta)
+        self.sliders["tilt_AP"].GetRepresentation().SetValue(
+            self.probe.tilt_AP
+        )
+        self.sliders["tilt_ML"].GetRepresentation().SetValue(
+            self.probe.tilt_ML
+        )
 
     def move_AP(self, widget, event):
         value = widget.GetRepresentation().GetValue()
@@ -142,18 +146,18 @@ class UI:
 
     def tilt_AP(self, widget, event):
         value = widget.GetRepresentation().GetValue()
-        delta = np.abs(value - self.probe.psy)
+        delta = np.abs(value - self.probe.tilt_AP)
         if delta > 1:
             logger.debug(f"Tilt AP: {value:.1f}")
-            self.probe.psy = value
+            self.probe.tilt_AP = value
             self.refresh()
 
     def tilt_ML(self, widget, event):
         value = widget.GetRepresentation().GetValue()
-        delta = np.abs(value - self.probe.theta)
+        delta = np.abs(value - self.probe.tilt_ML)
         if delta > 1:
             logger.debug(f"Tilt ML: {value:.1f}")
-            self.probe.theta = value
+            self.probe.tilt_ML = value
             self.refresh()
 
 

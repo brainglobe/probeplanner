@@ -98,8 +98,8 @@ class Core(brainrender.Scene, UI, Hierarchy):
             self.probe.point_at(target)
 
             # angle probe
-            self.probe.theta = ML_angle
-            self.probe.psy = AP_angle
+            self.probe.tilt_ML = ML_angle
+            self.probe.tilt_AP = AP_angle
             self.add(self.probe)
 
         # keep track of the probe's original configuration
