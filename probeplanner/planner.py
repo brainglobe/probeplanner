@@ -7,36 +7,15 @@ from probeplanner.terminal_ui import TerminalUI
 
 class Planner(Core):
     def __init__(
-        self,
-        aim_at=None,
-        hemisphere="both",
-        AP_angle=0,
-        ML_angle=0,
-        highlight=[],
-        probe_file=None,
-        interactive=True,
+        self, plan_file, probe_file, interactive=True,
     ):
         """
             Interactive visualization that can be used to edit probe's parameters and save 
             probes to file.
 
-            Arguments:
-                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
-                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
-                    should be targeted?
-                AP_angle, ML_angle: float. Angles in the AP and ML planes
-                highlight: list of str of brain region acronyms of regions to highlight in the rendering
-                probe_file: str, Path. Path to a .yaml file with probe parameters.
-                interactive: bool. If False the sliders and buttons are not shown.
         """
         Core.__init__(
-            self,
-            aim_at=aim_at,
-            hemisphere=hemisphere,
-            AP_angle=AP_angle,
-            ML_angle=ML_angle,
-            highlight=highlight,
-            probe_file=probe_file,
+            self, plan_file, probe_file,
         )
 
         if interactive:

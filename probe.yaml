@@ -1,8 +1,9 @@
 length: 10000
 radius: 70
-tilt_AP: -21.808799326472432
-tilt_ML: 17.776727147663053
-tip:
-- 11327.569306189273
-- 6251.373277680213
-- 5306.988538213137
+color: 'k'
+
+# ROIs can be used to select parts of the probe to use
+# ROIs: 
+#   - [0, 400]
+#   - [5000, 6000]
+ROIs:
