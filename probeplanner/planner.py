@@ -77,11 +77,10 @@ class Planner(Core):
             Produces a list of regions
             that the probe goes through
         """
-        points = self.probe.sample()
 
         self.tip_region = None
         names = []
-        for p in points:
+        for p in self.probe.points:
             name = self.get_structure_from_point(p)
             if name == "root":
                 continue

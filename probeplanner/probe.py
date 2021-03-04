@@ -21,6 +21,18 @@ BREGMA = [
 
 
 @dataclass
+class Point:
+    AP: float = 0.0  # position on AP axis
+    DV: float = 0.0  # position on DV axis
+    ML: float = 0.0  # position on ML axis
+    ROI: int = 0
+
+    @property
+    def coordinates(self):
+        return np.array([self.AP, self.DV, self.ML])
+
+
+@dataclass
 class ProbeGeometry:
     """
         Class handling basic geometry operation on 
@@ -80,14 +92,44 @@ class ProbeGeometry:
         top = self.tip + self.R @ top
         return top
 
+    @property
+    def points(self):
+        """
+            Creates a list of points (AP-DV-ML coordinates) along the probe in the 
+            regions of intersted (ROIs)
+
+            Returns:
+                points: list of Point
+        """
+        # generated points
+        points = []
+        for n, roi in enumerate(self.ROIs):
+            start = roi[0] / self.length  # ROI start/end in fraction of probe
+            end = roi[1] / self.length
+            N = int((roi[1] - roi[0]) / 100)  #  a point every 100 microns
+
+            steps = np.linspace(start, end, N)
+            for u in steps:
+                AP = (1 - u) * self.tip[0] + u * self.top[0]
+                DV = (1 - u) * self.tip[1] + u * self.top[1]
+                ML = (1 - u) * self.tip[2] + u * self.top[2]
+                points.append(Point(AP, DV, ML, n))
+
+        return points
+
 
 class Probe(ProbeGeometry, Actor):
-    def __init__(self, *args, _top=None, **kwargs):
+    def __init__(self, *args, _top=None, ROIs=None, **kwargs):
         """
             Represents a probe as a brainrender actor
         """
+
         ProbeGeometry.__init__(self, *args, **kwargs)
         Actor.__init__(self, self.get_mesh(), name="Probe", br_class="Probe")
+
+        self.ROIs = ROIs or [
+            (0, self.length),
+        ]
 
         logger.debug(
             f"Creating probe, angles: tip:{[int(x) for x in self.tip]} tilt_AP-{self.tilt_AP:.2f}  tilt_ML-{self.tilt_ML:.2f}"
@@ -132,23 +174,6 @@ class Probe(ProbeGeometry, Actor):
         delta = new_pos - self.tip
         self.tip += delta
         self.update()
-
-    def sample(self, N=50):
-        """
-            Sample N points along the length of the probe
-        """
-        steps = np.linspace(0.001, 0.999, N)
-        points = [
-            np.array(
-                [
-                    (1 - u) * self.tip[0] + u * self.top[0],
-                    (1 - u) * self.tip[1] + u * self.top[1],
-                    (1 - u) * self.tip[2] + u * self.top[2],
-                ]
-            )
-            for u in steps
-        ]
-        return points
 
     def clone(self):
         """
