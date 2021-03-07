@@ -42,7 +42,7 @@ class Probe(ProbeGeometry, Actor):
 
     def clone(self):
         return Probe(
-            tip=self.tip,
+            tip=self.tip.copy(),
             tilt_ML=self.tilt_ML,
             tilt_AP=self.tilt_AP,
             length=self.length,

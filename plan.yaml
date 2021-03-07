@@ -1,20 +1,8 @@
-# AIM at brain region
-aim_at: 
-
-# Probe angles
 AP_angle: -21
 ML_angle: 17
-
-# Probe tip location
+aim_at: null
+highlight: null
 tip:
-- 11327
-- 6251
-- 5306
-
-
-# Highlight brain regions
-highlight:
-  - CUN
-  - MOs
-  - GRN
-  - SCm
+- 6932.195
+- 4896.02
+- 5306.0

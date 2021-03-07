@@ -1,6 +1,7 @@
 from vedo.shapes import Cylinder
 import yaml
 import brainrender
+from loguru import logger
 
 from probeplanner.probe import BREGMA, Probe
 from probeplanner.ui import UI
@@ -109,6 +110,67 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
         # keep track of the probe's original configuration
         self._probe = self.probe.clone()
+
+    def get_regions(self):
+        """
+            Produces a list of regions
+            that the probe goes through
+        """
+
+        self.tip_region = None
+        names = []
+        for p in self.probe.points:
+            name = self.get_structure_from_point(p)
+            if name == "root":
+                continue
+            if name is None:
+                continue
+            else:
+                names.append(name)
+                if self.tip_region is None:
+                    self.tip_region = name
+
+        logger.debug(f"Regions touched by probe: {names}")
+        return names
+
+    def update_regions(self, new_targets):
+        """
+            Removes from scene regions that are not relevant anymore (i.e. probe doesn't
+            go through them anymore), 
+            and adds new ones that are touched by the probe but not currently rendred.
+            Hihlighted regions are rendered with outline and higher alpha.
+        """
+        logger.debug("Updating region actors")
+        rendered = []
+        to_remove = []
+
+        # remove outdated
+        for region in self.probe_targets:
+
+            if region not in new_targets and region != "root":
+                to_remove.append(region)
+            else:
+                rendered.append(region)
+
+        self.remove(*self.get_actors(name=to_remove, br_class="brain region"))
+
+        # add new ones
+        for region in new_targets:
+            if region not in self.probe_targets and region != self.tip_region:
+                if region in self.highlight:
+                    alpha, silhouette = 0.8, True
+                else:
+                    alpha, silhouette = 0.1, False
+                self.add_brain_region(
+                    region, alpha=alpha, silhouette=silhouette
+                )
+                rendered.append(region)
+
+        # add tip region
+        self.add_brain_region(self.tip_region, alpha=0.6, silhouette=True)
+
+        # keep track of regions
+        self.probe_targets = rendered
 
     def refresh(self, new_probe=None, reset_sliders=False):
         """

@@ -1,5 +1,7 @@
 from loguru import logger
 from rich.live import Live
+import yaml
+
 
 from probeplanner.core import Core
 from probeplanner.terminal_ui import TerminalUI
@@ -51,62 +53,16 @@ class Planner(Core):
         self.plotter.remove(self.probe.mesh)
         self.refresh(new_probe=self._probe.clone(), reset_sliders=True)
 
-    def get_regions(self):
+    def save(self):
         """
-            Produces a list of regions
-            that the probe goes through
+            Save current planning parameters to file.
         """
-
-        self.tip_region = None
-        names = []
-        for p in self.probe.points:
-            name = self.get_structure_from_point(p)
-            if name == "root":
-                continue
-            if name is None:
-                continue
-            else:
-                names.append(name)
-                if self.tip_region is None:
-                    self.tip_region = name
-
-        logger.debug(f"Regions touched by probe: {names}")
-        return names
-
-    def update_regions(self, new_targets):
-        """
-            Removes from scene regions that are not relevant anymore (i.e. probe doesn't
-            go through them anymore), 
-            and adds new ones that are touched by the probe but not currently rendred.
-            Hihlighted regions are rendered with outline and higher alpha.
-        """
-        logger.debug("Updating region actors")
-        rendered = []
-
-        # remove outdated
-        for region in self.probe_targets:
-
-            if region not in new_targets and region != "root":
-                self.remove(
-                    *self.get_actors(name=region, br_class="brain region")
-                )
-            else:
-                rendered.append(region)
-
-        # add new ones
-        for region in new_targets:
-            if region not in self.probe_targets and region != self.tip_region:
-                if region in self.highlight:
-                    alpha, silhouette = 0.8, True
-                else:
-                    alpha, silhouette = 0.1, False
-                self.add_brain_region(
-                    region, alpha=alpha, silhouette=silhouette
-                )
-                rendered.append(region)
-
-        # add tip region
-        self.add_brain_region(self.tip_region, alpha=0.6, silhouette=True)
-
-        # keep track of regions
-        self.probe_targets = rendered
+        params = dict(
+            aim_at=None,
+            AP_angle=self.probe.tilt_AP,
+            ML_angle=self.probe.tilt_ML,
+            tip=[round(float(x), 3) for x in self.probe.tip],
+            highlight=None,
+        )
+        with open("plan.yaml", "w") as out:
+            yaml.dump(params, out, default_flow_style=False, indent=4)
