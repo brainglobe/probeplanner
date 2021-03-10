@@ -16,7 +16,7 @@ requirements = [
 
 setup(
     name="probeplanner",
-    version="0.1.5rc",
+    version="0.1.6rc",
     description="Plan probe locations",
     long_description=long_description,
     long_description_content_type="text/markdown",
