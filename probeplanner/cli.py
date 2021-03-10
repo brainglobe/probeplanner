@@ -1,5 +1,4 @@
 import typer
-from typing import List, Optional
 import sys
 import brainrender
 
@@ -11,26 +10,11 @@ app = typer.Typer()
 
 @app.command()
 def plan(
-    aim_at: str = typer.Option(
-        None, "-aim-at", "--at", help="Name of brain region to aim at"
-    ),
-    hemisphere: str = typer.Option(
-        None, "-hemisphere", "--h", help="target hemisphere"
-    ),
-    AP_angle: int = typer.Option(
-        0, "-AP-angle", "--AP", help="angle on AP plane"
-    ),
-    ML_angle: int = typer.Option(
-        0, "-ML-angle", "--ML", help="angle on ML plane"
-    ),
-    highlight: Optional[List[str]] = typer.Option(
-        "",
-        "-highlight",
-        "--hl",
-        help="names of brain regions to highlight (separated by space)",
+    plan_file: str = typer.Option(
+        None, "-plan", "--p", help="Path to plan YAML"
     ),
     probe_file: str = typer.Option(
-        None, "-probe", "--p", help=".yaml file with probe data"
+        None, "-probe", "--pp", help="Path to probe YAML"
     ),
     debug: bool = typer.Option(False, "-debug", "--debug", help="Debug?"),
 ):
@@ -38,39 +22,25 @@ def plan(
     if debug:
         brainrender.set_logging("DEBUG")
 
-    if highlight:
-        highlight = highlight[0].split(" ")
-
-    planner = Planner(
-        aim_at=aim_at,
-        hemisphere=hemisphere,
-        AP_angle=float(AP_angle),
-        ML_angle=float(ML_angle),
-        highlight=highlight,
-        probe_file=probe_file,
-    )
+    planner = Planner(plan_file, probe_file)
 
     planner.plan()
 
 
 @app.command()
 def view(
-    probe_file: str = typer.Argument(None),
-    highlight: Optional[List[str]] = typer.Option(
-        "",
-        "-highlight",
-        "--hl",
-        help="names of brain regions to highlight (separated by space)",
+    plan_file: str = typer.Option(
+        None, "-plan", "--p", help="Path to plan YAML"
+    ),
+    probe_file: str = typer.Option(
+        None, "-probe", "--pp", help="Path to probe YAML"
     ),
     debug: bool = typer.Option(False, "-debug", "--debug", help="Debug?"),
 ):
     if debug:
         brainrender.set_logging("DEBUG")
 
-    if highlight:
-        highlight = highlight[0].split(" ")
-
-    Viewer(probe_file, highlight=highlight)
+    Viewer(plan_file, probe_file)
 
 
 if __name__ == "__main__":

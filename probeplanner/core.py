@@ -1,6 +1,7 @@
 from vedo.shapes import Cylinder
-
+import yaml
 import brainrender
+from loguru import logger
 
 from probeplanner.probe import BREGMA, Probe
 from probeplanner.ui import UI
@@ -27,50 +28,34 @@ class Core(brainrender.Scene, UI, Hierarchy):
     tip_region = ""  # brain region in which selected probe's tip is
 
     def __init__(
-        self,
-        aim_at=None,
-        hemisphere="both",
-        AP_angle=0,
-        ML_angle=0,
-        highlight=[],
-        probe_file=None,
+        self, plan_file, probe_file,
     ):
         """ 
             Base class providing core functionality for Planner and Viewer.
             Expands upon brainrender's Scene class to provide methods to add probes to the 
             rendering and add/remove brain regions touched by probes
 
-            Arguments:
-                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
-                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
-                    should be targeted?
-                AP_angle, ML_angle: float. Angles in the AP and ML planes
-                highlight: list of str of brain region acronyms of regions to highlight in the rendering
-                probe_file: str, Path. Path to a .yaml file with probe parameters.
         """
         # intialize parent classes
         brainrender.Scene.__init__(self)
         UI.__init__(self)
         Hierarchy.__init__(self)
 
-        # get copy of root's mesh
         self.root_mesh = self.atlas.get_region("root")
+
+        # load params
+        with open(plan_file, "r") as fin:
+            self.params = yaml.load(fin, Loader=yaml.FullLoader)
 
         # expand highlighted regions with their descendants
         self.highlight = []
-        for region in highlight:
+        for region in self.params["highlight"]:
             self.highlight.extend(
                 self.atlas.get_structure_descendants(region) + [region]
             )
 
         # add first probe
-        self.add_probe(
-            aim_at=aim_at,
-            hemisphere=hemisphere,
-            AP_angle=AP_angle,
-            ML_angle=ML_angle,
-            probe_file=probe_file,
-        )
+        self.add_probe(probe_file)
 
         # mark bregma
         self.add(
@@ -88,12 +73,7 @@ class Core(brainrender.Scene, UI, Hierarchy):
         self.refresh()
 
     def add_probe(
-        self,
-        aim_at=None,
-        hemisphere="both",
-        AP_angle=0,
-        ML_angle=0,
-        probe_file=None,
+        self, probe_file,
     ):
         """
             Creates a Probe by either loading it from file or by positioning and 
@@ -106,36 +86,91 @@ class Core(brainrender.Scene, UI, Hierarchy):
                 AP_angle, ML_angle: float. Angles in the AP and ML planes
                 probe_file: str, Path. Path to a .yaml file with probe parameters.
         """
-        if probe_file is not None:
-            self.probe = Probe.load(probe_file)
-        else:
-            self.probe = Probe()
 
-            # get mesh the probe is aimed at
-            aim_at = aim_at or "root"
-            if hemisphere == "right":
-                hemisphere = "left"
-            elif hemisphere == "left":
-                hemisphere = "right"
-            act = self.add_brain_region(
-                aim_at, hemisphere=hemisphere, force=True
-            )
+        self.probe = Probe.from_file(probe_file)
+
+        # get mesh the probe is aimed at
+        if self.params["aim_at"] is not None:
+            aim_at = self.params["aim_at"] or "root"
+            act = self.add_brain_region(aim_at, force=True)
             self.remove(act)
 
             # get target coords and aim
             target = act.centerOfMass()
-            target[2] = -target[2]
-            delta = self.root_mesh.centerOfMass()[2] - target[2]
-            target[2] = self.root_mesh.centerOfMass()[2] - delta
-            self.probe.point_at(target)
+        else:
+            target = self.params["tip"]
+        self.probe.point_at(target)
 
-            # angle probe
-            self.probe.tilt_ML = ML_angle
-            self.probe.tilt_AP = AP_angle
-            self.add(self.probe)
+        # angle probe
+        self.probe.tilt_ML = self.params["ML_angle"]
+        self.probe.tilt_AP = self.params["AP_angle"]
+
+        self.probe.update()
+        self.add(self.probe)
 
         # keep track of the probe's original configuration
         self._probe = self.probe.clone()
+
+    def get_regions(self):
+        """
+            Produces a list of regions
+            that the probe goes through
+        """
+
+        self.tip_region = None
+        names = []
+        for p in self.probe.points:
+            name = self.get_structure_from_point(p)
+            if name == "root":
+                continue
+            if name is None:
+                continue
+            else:
+                names.append(name)
+                if self.tip_region is None:
+                    self.tip_region = name
+
+        logger.debug(f"Regions touched by probe: {names}")
+        return names
+
+    def update_regions(self, new_targets):
+        """
+            Removes from scene regions that are not relevant anymore (i.e. probe doesn't
+            go through them anymore), 
+            and adds new ones that are touched by the probe but not currently rendred.
+            Hihlighted regions are rendered with outline and higher alpha.
+        """
+        logger.debug("Updating region actors")
+        rendered = []
+        to_remove = []
+
+        # remove outdated
+        for region in self.probe_targets:
+
+            if region not in new_targets and region != "root":
+                to_remove.append(region)
+            else:
+                rendered.append(region)
+
+        self.remove(*self.get_actors(name=to_remove, br_class="brain region"))
+
+        # add new ones
+        for region in new_targets:
+            if region not in self.probe_targets and region != self.tip_region:
+                if region in self.highlight:
+                    alpha, silhouette = 0.8, True
+                else:
+                    alpha, silhouette = 0.1, False
+                self.add_brain_region(
+                    region, alpha=alpha, silhouette=silhouette
+                )
+                rendered.append(region)
+
+        # add tip region
+        self.add_brain_region(self.tip_region, alpha=0.6, silhouette=True)
+
+        # keep track of regions
+        self.probe_targets = rendered
 
     def refresh(self, new_probe=None, reset_sliders=False):
         """

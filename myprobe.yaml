@@ -1,0 +1,9 @@
+length: 10000
+radius: 70
+color: 'k'
+
+# ROIs can be used to select parts of the probe to use
+# ROIs: 
+#   - [0, 400]
+#   - [5000, 6000]
+ROIs:

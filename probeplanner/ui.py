@@ -28,9 +28,9 @@ class UI:
 
         # save probe button
         self.plotter.addButton(
-            self.save_probe,
-            pos=(0.15, 0.85),  # x,y fraction from bottom left corner
-            states=["Save probe"],
+            self.save,
+            pos=(0.1, 0.85),  # x,y fraction from bottom left corner
+            states=["Save"],
             c=["w"],
             bc=[blue_grey_dark],  # colors of states
             font="courier",  # arial, courier, times

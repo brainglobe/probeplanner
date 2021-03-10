@@ -36,12 +36,12 @@ class Hierarchy:
             Arguments:
                 point: np.ndarray with AP-DV-ML coordinates.
         """
-        if not self.root_mesh.isInside(point):
+        if not self.root.isInside(point.coordinates):
             return None
 
         try:
             name = self.atlas.structure_from_coords(
-                point, microns=True, as_acronym=True
+                point.coordinates, microns=True, as_acronym=True
             )
         except (KeyError, IndexError):
             return None

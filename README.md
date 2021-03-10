@@ -27,7 +27,7 @@ If you have a python environment with python >= 3.6:
 ## Usage
 The easiest way to use probepanner is through the command line interface. In your terminal you can use:
 ```
-probe plane
+probe plan
 ```
 to lanch the interactive probe planner, or 
 ```
@@ -42,36 +42,58 @@ The `--help` option can be used to visualize what options these commands accept:
 Usage: probe plan [OPTIONS]
 
 Options:
-  -aim-at, --at TEXT       Name of brain region to aim at
-  -hemisphere, --h TEXT    target hemisphere
-  -AP-angle, --AP INTEGER  angle on AP plane  [default: 0]
-  -ML-angle, --ML INTEGER  angle on ML plane  [default: 0]
-  -highlight, --hl TEXT    names of brain regions to highlight (separated by
-                           space)  [default: ]
-
-  -probe, --p TEXT         .yaml file with probe data
-  -debug, --debug          Debug?  [default: False]
-  --help        
+  -plan, --p TEXT    Path to plan YAML
+  -probe, --pp TEXT  Path to probe YAML
+  -debug, --debug    Debug?  [default: False]
+  --help             Show this message and exit.
 ```
 
-The main arguments are:
-- **aim-at** which lets you aim (i.e. position the probe tip) at a brain region by passing its name (e.g. 'CUN' will set the tip of the probe in the cuneiform)
-- **AP** and **ML** let you specify the angle of the probe on the two main planes
-- **highlight** lets you pass a list of regions names (e.g. 'CUN MOs SCm') to be highlighted during use.
-- **probe_file** can be a path to a .yaml file with probe data (which you can generate with the planner's save probe button)
+### probe file
+You can save probe parameters in a 'probe' YAML file:
+``` yaml
+length: 10000
+radius: 70
+color: 'k'
 
-For `probe visualize` these are the arguemnts:
+# ROIs can be used to select parts of the probe to use
+# ROIs: 
+#   - [0, 400]
+#   - [5000, 6000]
+ROIs:
 ```
-(brainrender) ❯ probe view --help     
-Usage: probe view [OPTIONS] [PROBE_FILE]
 
-Arguments:
-  [PROBE_FILE]
+`length` and `radius` are the geometric shape of the probe, expressed in micrometers. `ROIs` is a list of two tuples indicating regions' of interest
+along the probe's shaft, counting from the tip. Each ROI is specified as a tuple of numbers indicating start/end of the ROI in microns. 
+ROIs can be used if there's only part of the probe that is to be used (e.g. to see through which brain regions the ROI goes through). E.g. if all electrodes
+are in the 500 micrometers closest to the tip you can specify an ROI as `(0, 500)`.
 
-Options:
-  -highlight, --hl TEXT  names of brain regions to highlight (separated by
-                         space)  [default: ]
+### plan file
+A 'plan' YAML file can be used to specify planning parameters (e.g. where the probe should be).
 
-  -debug, --debug        Debug?  [default: False]
-  --help                 Show this message and exit.
+``` yaml
+# AIM at brain region
+aim_at: 
+
+# Probe angles
+AP_angle: -21
+ML_angle: 17
+
+# Probe tip location
+tip:
+- 11327
+- 6251
+- 5306
+
+
+# Highlight brain regions
+highlight:
+  - CUN
+  - MOs
+  - GRN
+  - SCm
 ```
+
+`aim_at` can be the name of a brain region, if that's passed the probe will be centered on the region's center.
+The angles values indicate how the probe should be titled in the ML and AP planes. 
+`tip` is a list of three values indicating the coordinate's (AP, DV, ML) of the probe's tip (if `aim_at` is not used). 
+`highlight` is an optional list of brain regions to highlight in the viewer.
