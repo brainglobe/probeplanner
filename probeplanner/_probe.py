@@ -3,6 +3,18 @@ from numpy import radians as rad
 from numpy import cos, sin
 from dataclasses import dataclass
 
+"""
+    This bregma coordinates in the Allen CCF are from Shamash et al 2018
+    and are only approximated. Good enough for visualization.
+"""
+
+
+BREGMA = [
+    5400,  # AP
+    0,  # DV
+    5700,  # ML
+]
+
 
 @dataclass
 class Point:
@@ -99,3 +111,29 @@ class ProbeGeometry:
                 points.append(Point(AP, DV, ML, n))
 
         return points
+
+    @property
+    def skull_point(self):
+        """
+            Returns the probe point with smaller AP distance from bregma
+        """
+        depths = np.array([p.DV for p in self.points])
+
+        at_skull = np.argmin(np.abs(depths - BREGMA[1]))
+
+        return self.points[at_skull]
+
+    @property
+    def tip_point(self):
+        """
+            The point closest to the tip
+        """
+        return Point(*self.tip, ROI=-1)
+
+    @property
+    def length_in_skull(self):
+        """
+            The length/ammount of probe shank inside the skull
+            (betwee the tip and skull points)
+        """
+        return np.linalg.norm(self.tip - self.skull_point.coordinates)

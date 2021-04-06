@@ -12,7 +12,7 @@ from myterial import (
     salmon,
 )
 
-from probeplanner.probe import BREGMA
+from probeplanner._probe import BREGMA
 
 
 class TerminalUI:
@@ -59,7 +59,7 @@ class ProbeParameters:
             yield ""
         else:
             tb = Table(box=None)
-            tb.add_row(f"[bold {salmon}]Position in CFF coordinates")
+            tb.add_row(f"[bold {salmon}]Position of TIP in CFF coordinates")
             tb.add_row(
                 f"[bold {pink_light}]AP:  [{blue_light}] {str(round(self.probe.tip[0], 0))} [grey]micrometers",
             )
@@ -80,7 +80,7 @@ class ProbeParameters:
             )
 
             tb.add_row("")
-            tb.add_row(f"[bold {salmon}]Position relative to bregma")
+            tb.add_row(f"[bold {salmon}]Position of TIP relative to bregma")
             tb.add_row(
                 f"[bold {pink_light}]AP:  [{blue_light}] {str(-round((BREGMA[0] - self.probe.tip[0])/1000, 3))} [grey]mm",
             )
@@ -89,6 +89,22 @@ class ProbeParameters:
             )
             tb.add_row(
                 f"[bold {pink_light}]DV:  [{blue_light}] {str(-round((BREGMA[1] - self.probe.tip[1])/1000, 3))} [grey]mm",
+            )
+
+            # position of probe point at same heigh as bregma wrt bregma
+            tb.add_row("")
+            tb.add_row(f"[bold {salmon}]Position of TOP relative to bregma")
+            tb.add_row(
+                f"[bold {pink_light}]AP:  [{blue_light}] {str(-round((BREGMA[0] - self.probe.skull_point.AP)/1000, 3))} [grey]mm",
+            )
+            tb.add_row(
+                f"[bold {pink_light}]ML:  [{blue_light}] {str(-round((BREGMA[2] - self.probe.skull_point.ML)/1000, 3))} [grey]mm",
+            )
+            tb.add_row(f"[bold {pink_light}]DV:  [{blue_light}] 0 [grey]mm",)
+
+            tb.add_row("")
+            tb.add_row(
+                f"[bold {salmon}]Shank length in skull: [{blue_light}]{round(self.probe.length_in_skull, 2)} microns"
             )
             yield tb
 

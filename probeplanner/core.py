@@ -3,7 +3,8 @@ import yaml
 import brainrender
 from loguru import logger
 
-from probeplanner.probe import BREGMA, Probe
+from probeplanner.probe import Probe
+from probeplanner._probe import BREGMA
 from probeplanner.ui import UI
 from probeplanner.terminal_ui import (
     StructuresTree,
@@ -49,7 +50,8 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
         # expand highlighted regions with their descendants
         self.highlight = []
-        for region in self.params["highlight"]:
+        highlight = self.params["highlight"] or []
+        for region in highlight:
             self.highlight.extend(
                 self.atlas.get_structure_descendants(region) + [region]
             )
@@ -200,7 +202,7 @@ class Core(brainrender.Scene, UI, Hierarchy):
             self.set_sliders_values()
 
         # refresh probe targets
-        self.remove(*self.get_actors(name=self.tip_region))
+        # self.remove(*self.get_actors(name=self.tip_region))
         new_regions = self.get_regions()
         self.update_regions(new_regions)
         self._apply_style()

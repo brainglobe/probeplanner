@@ -1,8 +1,12 @@
-AP_angle: -21
-ML_angle: 17
+AP_angle: -15
+ML_angle: 15
 aim_at: null
-highlight: null
+highlight: 
+  - CUN
+  - MOs
+  - GRN
+  - SCm
 tip:
-- 6932.195
-- 4896.02
-- 5306.0
+- 11100.031
+- 6251.0
+- 5140.961

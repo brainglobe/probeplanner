@@ -36,7 +36,7 @@ class Hierarchy:
             Arguments:
                 point: np.ndarray with AP-DV-ML coordinates.
         """
-        if not self.root.isInside(point.coordinates):
+        if not self.root.mesh.isInside(point.coordinates):
             return None
 
         try:

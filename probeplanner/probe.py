@@ -1,21 +1,14 @@
 import yaml
-from vedo.shapes import Cylinder, Sphere, Spheres
-from vedo import merge
+
+# from vedo.shapes import Cylinder, Sphere, Spheres
+from vedo.shapes import Spheres
+
+# from vedo import merge
 import numpy as np
 
 from brainrender.actor import Actor
 
 from probeplanner._probe import ProbeGeometry
-
-"""
-    This bregma coordinates in the Allen CCF are from Shamash et al 2018
-    and are only approximated. Good enough for visualization.
-"""
-BREGMA = [
-    5400,  # AP
-    0,  # DV
-    5700,  # ML
-]
 
 
 class Probe(ProbeGeometry, Actor):
@@ -55,15 +48,19 @@ class Probe(ProbeGeometry, Actor):
         """
             Returns the current mesh representation of the probe
         """
-        shaft = Cylinder(
-            pos=[self.top, self.tip], c="k", r=self.radius, alpha=1
-        )
-        tip = Sphere(pos=self.tip, r=self.radius + 20, c="k")
+        # shaft = Cylinder(
+        #     pos=[self.top, self.tip], c="k", r=self.radius, alpha=1
+        # )
+        # tip = Sphere(pos=self.tip, r=self.radius + 20, c="r")
+
+        vip = (self.skull_point, self.points[0])
         rois = Spheres(
-            [p.coordinates for p in self.points], r=self.radius + 30, c="r"
+            [p.coordinates for p in self.points],
+            r=self.radius + 30,
+            c=["k" if p not in vip else "salmon" for p in self.points],
         )
-        mesh = merge(shaft, tip, rois).c(self.color)
-        return mesh
+        # mesh = merge(shaft, tip, rois).c(self.color)
+        return rois
 
     def update(self):
         self.mesh = self.get_mesh()
