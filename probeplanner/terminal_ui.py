@@ -18,9 +18,9 @@ from probeplanner._probe import BREGMA
 class TerminalUI:
     def __init__(self, probe, target, tree):
         """
-            UI for terminal info panels showing probe parameters, regions
-            touched by probe etc. Built as a Live dispay of Layout's showing 
-            rich renderables (classes above).
+        UI for terminal info panels showing probe parameters, regions
+        touched by probe etc. Built as a Live dispay of Layout's showing
+        rich renderables (classes above).
         """
         self.layout = Layout()
         self.layout.split(
@@ -49,7 +49,7 @@ class TerminalUI:
 
 class ProbeParameters:
     """
-        Show current probe parameters
+    Show current probe parameters
     """
 
     probe = None
@@ -100,7 +100,9 @@ class ProbeParameters:
             tb.add_row(
                 f"[bold {pink_light}]ML:  [{blue_light}] {str(-round((BREGMA[2] - self.probe.skull_point.ML)/1000, 3))} [grey]mm",
             )
-            tb.add_row(f"[bold {pink_light}]DV:  [{blue_light}] 0 [grey]mm",)
+            tb.add_row(
+                f"[bold {pink_light}]DV:  [{blue_light}] 0 [grey]mm",
+            )
 
             tb.add_row("")
             tb.add_row(
@@ -111,7 +113,7 @@ class ProbeParameters:
 
 class StructuresTree:
     """
-        Tree hierarchy of regions traversed by probe
+    Tree hierarchy of regions traversed by probe
     """
 
     targets = []
@@ -122,7 +124,7 @@ class StructuresTree:
 
 class ProbeTarget:
     """
-        Shows the current probe target
+    Shows the current probe target
     """
 
     target = ""

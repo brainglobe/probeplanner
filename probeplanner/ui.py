@@ -6,12 +6,12 @@ from myterial import blue_grey_dark
 
 class UI:
     """
-        User interface (siders and buttons) for Planner
+    User interface (siders and buttons) for Planner
     """
 
     def _init_buttons(self):
         """
-            Add buttons to 3D visualization
+        Add buttons to 3D visualization
         """
         # reset probe
         self.plotter.addButton(
@@ -41,7 +41,7 @@ class UI:
 
     def _init_sliders(self):
         """
-            Add sliders to 3D visualization
+        Add sliders to 3D visualization
         """
         bounds = self.root_mesh.bounds()
 
@@ -88,7 +88,11 @@ class UI:
 
         # 2D sliders for tilting
         tilt_AP_slider = self.plotter.addSlider2D(
-            self.tilt_AP, -60, 60, value=self.probe.tilt_AP, title="AP angle",
+            self.tilt_AP,
+            -60,
+            60,
+            value=self.probe.tilt_AP,
+            title="AP angle",
         )
 
         tilt_ML_slider = self.plotter.addSlider2D(
@@ -110,8 +114,8 @@ class UI:
 
     def set_sliders_values(self):
         """
-            Update the sliders' values based on the current
-            probe parameters.
+        Update the sliders' values based on the current
+        probe parameters.
         """
         self.sliders["move_AP"].GetRepresentation().SetValue(self.probe.tip[0])
         self.sliders["move_DV"].GetRepresentation().SetValue(self.probe.tip[1])

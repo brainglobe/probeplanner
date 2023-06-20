@@ -9,15 +9,20 @@ from probeplanner.terminal_ui import TerminalUI
 
 class Planner(Core):
     def __init__(
-        self, plan_file, probe_file, interactive=True,
+        self,
+        plan_file,
+        probe_file,
+        interactive=True,
     ):
         """
-            Interactive visualization that can be used to edit probe's parameters and save 
-            probes to file.
+        Interactive visualization that can be used to edit probe's parameters and save
+        probes to file.
 
         """
         Core.__init__(
-            self, plan_file, probe_file,
+            self,
+            plan_file,
+            probe_file,
         )
 
         if interactive:
@@ -29,7 +34,7 @@ class Planner(Core):
 
     def plan(self):
         """
-            Starts interactive displays for planning probes placement.
+        Starts interactive displays for planning probes placement.
         """
         display = TerminalUI(
             self.probe_parameters_display,
@@ -41,21 +46,21 @@ class Planner(Core):
 
     def save_probe(self):
         """
-            Save current probe parameters to file.
+        Save current probe parameters to file.
         """
         logger.debug("Saving probe")
         self.probe.save("probe.yaml")
 
     def reset(self):
         """
-            Reset probe to initial values
+        Reset probe to initial values
         """
         self.plotter.remove(self.probe.mesh)
         self.refresh(new_probe=self._probe.clone(), reset_sliders=True)
 
     def save(self):
         """
-            Save current planning parameters to file.
+        Save current planning parameters to file.
         """
         params = dict(
             aim_at=None,

@@ -46,7 +46,7 @@ class Probe(ProbeGeometry, Actor):
 
     def get_mesh(self):
         """
-            Returns the current mesh representation of the probe
+        Returns the current mesh representation of the probe
         """
         # shaft = Cylinder(
         #     pos=[self.top, self.tip], c="k", r=self.radius, alpha=1
@@ -67,9 +67,9 @@ class Probe(ProbeGeometry, Actor):
 
     def point_at(self, target):
         """
-            Point the probe at a target (either set of coordinates or an actor).
-            The "pointing" referes to the positioning of the probe's tip at the point of interest, 
-            it doesn't affect the probe's angles.
+        Point the probe at a target (either set of coordinates or an actor).
+        The "pointing" referes to the positioning of the probe's tip at the point of interest,
+        it doesn't affect the probe's angles.
         """
         if isinstance(target, (np.ndarray, list, tuple)):
             new_pos = np.array(target)
