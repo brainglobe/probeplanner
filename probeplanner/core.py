@@ -29,12 +29,14 @@ class Core(brainrender.Scene, UI, Hierarchy):
     tip_region = ""  # brain region in which selected probe's tip is
 
     def __init__(
-        self, plan_file, probe_file,
+        self,
+        plan_file,
+        probe_file,
     ):
-        """ 
-            Base class providing core functionality for Planner and Viewer.
-            Expands upon brainrender's Scene class to provide methods to add probes to the 
-            rendering and add/remove brain regions touched by probes
+        """
+        Base class providing core functionality for Planner and Viewer.
+        Expands upon brainrender's Scene class to provide methods to add probes to the
+        rendering and add/remove brain regions touched by probes
 
         """
         # intialize parent classes
@@ -75,18 +77,19 @@ class Core(brainrender.Scene, UI, Hierarchy):
         self.refresh()
 
     def add_probe(
-        self, probe_file,
+        self,
+        probe_file,
     ):
         """
-            Creates a Probe by either loading it from file or by positioning and 
-            tilting it according to the input parameters.
-            
-            Arguments:
-                aim_at: str. Acronym of brain region in which the probe's tip should be placed.
-                hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
-                    should be targeted?
-                AP_angle, ML_angle: float. Angles in the AP and ML planes
-                probe_file: str, Path. Path to a .yaml file with probe parameters.
+        Creates a Probe by either loading it from file or by positioning and
+        tilting it according to the input parameters.
+
+        Arguments:
+            aim_at: str. Acronym of brain region in which the probe's tip should be placed.
+            hemisphere: str (both, left or right). When aiming the probe at a brain region, which hemisphere
+                should be targeted?
+            AP_angle, ML_angle: float. Angles in the AP and ML planes
+            probe_file: str, Path. Path to a .yaml file with probe parameters.
         """
 
         self.probe = Probe.from_file(probe_file)
@@ -115,8 +118,8 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
     def get_regions(self):
         """
-            Produces a list of regions
-            that the probe goes through
+        Produces a list of regions
+        that the probe goes through
         """
 
         self.tip_region = None
@@ -137,10 +140,10 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
     def update_regions(self, new_targets):
         """
-            Removes from scene regions that are not relevant anymore (i.e. probe doesn't
-            go through them anymore), 
-            and adds new ones that are touched by the probe but not currently rendred.
-            Hihlighted regions are rendered with outline and higher alpha.
+        Removes from scene regions that are not relevant anymore (i.e. probe doesn't
+        go through them anymore),
+        and adds new ones that are touched by the probe but not currently rendred.
+        Hihlighted regions are rendered with outline and higher alpha.
         """
         logger.debug("Updating region actors")
         rendered = []
@@ -148,7 +151,6 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
         # remove outdated
         for region in self.probe_targets:
-
             if region not in new_targets and region != "root":
                 to_remove.append(region)
             else:
@@ -176,15 +178,15 @@ class Core(brainrender.Scene, UI, Hierarchy):
 
     def refresh(self, new_probe=None, reset_sliders=False):
         """
-            Refresh visualization to update the scene and the terminal UI.
-            To ensure that the probe's actor is updated in the 3D visualization, 
-            the current probe is removed an a new (cloned) probe is added.
+        Refresh visualization to update the scene and the terminal UI.
+        To ensure that the probe's actor is updated in the 3D visualization,
+        the current probe is removed an a new (cloned) probe is added.
 
-            Arguments:
-                new_probe: Probe. instance of Probe class, if None the current probe's clone
-                    is used.
-                reset_sliders: bool. If true the sliders' values are updated using the new
-                    probe's parameters.
+        Arguments:
+            new_probe: Probe. instance of Probe class, if None the current probe's clone
+                is used.
+            reset_sliders: bool. If true the sliders' values are updated using the new
+                probe's parameters.
         """
         # make new probe
         new_probe = new_probe or self.probe.clone()

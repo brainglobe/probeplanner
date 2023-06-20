@@ -18,7 +18,6 @@ def plan(
     ),
     debug: bool = typer.Option(False, "-debug", "--debug", help="Debug?"),
 ):
-
     if debug:
         brainrender.set_logging("DEBUG")
 

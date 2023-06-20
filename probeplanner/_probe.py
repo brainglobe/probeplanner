@@ -31,8 +31,8 @@ class Point:
 @dataclass
 class ProbeGeometry:
     """
-        Class handling basic geometry operation on 
-        the probe.
+    Class handling basic geometry operation on
+    the probe.
     """
 
     tip: np.ndarray = np.zeros(3)  # coordinates of the tip
@@ -45,8 +45,8 @@ class ProbeGeometry:
     @property
     def R_AP(self):
         """
-            Rotation matrix to describe rotation with AP
-            as axis.
+        Rotation matrix to describe rotation with AP
+        as axis.
         """
         tilt_AP = rad(self.tilt_AP)
         return np.array(
@@ -60,8 +60,8 @@ class ProbeGeometry:
     @property
     def R_ML(self):
         """
-            Rotation matrix to describe rotation with ML
-            as axis.
+        Rotation matrix to describe rotation with ML
+        as axis.
         """
         tilt_ML = rad(self.tilt_ML)
         return np.array(
@@ -74,14 +74,14 @@ class ProbeGeometry:
 
     @property
     def R(self):
-        """ rotation matrix composed of rotations with AP and ML axes """
+        """rotation matrix composed of rotations with AP and ML axes"""
         return self.R_AP @ self.R_ML
 
     @property
     def top(self):
         """
-            The position of the top of the probe, computed given the probe's 
-            tip location, length and rotation matrix.
+        The position of the top of the probe, computed given the probe's
+        tip location, length and rotation matrix.
         """
         top = np.array([0, -self.length, 0])
         top = self.tip + self.R @ top
@@ -90,11 +90,11 @@ class ProbeGeometry:
     @property
     def points(self):
         """
-            Creates a list of points (AP-DV-ML coordinates) along the probe in the 
-            regions of intersted (ROIs)
+        Creates a list of points (AP-DV-ML coordinates) along the probe in the
+        regions of intersted (ROIs)
 
-            Returns:
-                points: list of Point
+        Returns:
+            points: list of Point
         """
         # generated points
         points = []
@@ -115,7 +115,7 @@ class ProbeGeometry:
     @property
     def skull_point(self):
         """
-            Returns the probe point with smaller AP distance from bregma
+        Returns the probe point with smaller AP distance from bregma
         """
         depths = np.array([p.DV for p in self.points])
 
@@ -126,14 +126,14 @@ class ProbeGeometry:
     @property
     def tip_point(self):
         """
-            The point closest to the tip
+        The point closest to the tip
         """
         return Point(*self.tip, ROI=-1)
 
     @property
     def length_in_skull(self):
         """
-            The length/ammount of probe shank inside the skull
-            (betwee the tip and skull points)
+        The length/ammount of probe shank inside the skull
+        (betwee the tip and skull points)
         """
         return np.linalg.norm(self.tip - self.skull_point.coordinates)
