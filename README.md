@@ -1,3 +1,5 @@
+## Probe planner is now archived. To plan probe trajectories, we recommend [Pinpoint](https://github.com/VirtualBrainLab/Pinpoint).
+
 # Probe planner
 A tool to help plan where to implant electrodes, plobes and fibers.
 
